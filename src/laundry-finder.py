@@ -3,8 +3,10 @@
 # -*- coding: UTF-8 -*-
 import csv
 import os
+import pprint
 
 from Gmap import map_api as goog
+
 
 def get_all_coords():
     data = {}
@@ -16,12 +18,24 @@ def get_all_coords():
                 data[parts[1]] = c
         return(data)
 
+
 def add_places(g, d, zip):
+    """
+    Go through results from google for a particular zip code, and format the result
+    for entry into the dictionary
+    :param g: google search results
+    :param d: output dictionary
+    :param zip: zip code for this particular search
+    :return: d
+    """
     for e in g:
         if e['name'] in d:
             continue
         else:
-            details = [{'address': e['vicinity']}, {'zip': zip}, {'plid': e['place_id']}, {'id': e['id']}]
+            details = [{'address': e['vicinity']},
+                       {'plid': e['place_id']},
+                       {'id': e['id']},
+                       {'target-zip': zip}]
             d[e['name']] = details
     return d
 
@@ -31,8 +45,20 @@ def clean_places(places):
         1+1
 
 
+def reduce_coords(coords, zips):
+    """
+    Takes in the full set of coords by zip, and a list of zips to target and outputs
+    the reduced set of coords by zip.
+    :param coords: dictionary of {zip: (lat, long)}
+    :param zips: list of [zips] that should be targeted
+    :return: a reduced dictionary of {zip:(lat, long)}
+    """
+    output = {z:coords.get(z, None) for z in zips}
+    return output
+
+
 def output_data(data, path, json=False, method='radar'):
-    names = ('name', 'address', 'zip', 'plid', 'id')
+    names = ('target-zip', 'name', 'address', 'plid', 'id')
     if method == 'radar':  # TODO: slim support for radar, so needs to dump json
         json = True
     if json is True:
@@ -50,19 +76,21 @@ def output_data(data, path, json=False, method='radar'):
                 #     continue
                 # if 'carpet' in name.lower():
                 #     continue
-                outwriter.writerow([name, data[name][0]['address'], data[name][1]['zip'], data[name][2]['plid'], data[name][3]['id']])
+                outwriter.writerow([data[name][3]['target-zip'], name, data[name][0]['address'], data[name][1]['plid'], data[name][2]['id']])
 
 if __name__ == '__main__':
-    path = "../data/output/search-20160209-3.json"
+    path = "../data/output/search-20160331.csv"
+    top_pop = ['11550','11561','11520','11542','11590','11050','11580','11003','11801','11021']
     extract = goog.Gmap()  # build a gmap object to handle interface with google maps api.
     coord_dict = get_all_coords()
+    pop_coords = reduce_coords(coord_dict, top_pop)
     places = {}
-    for k in coord_dict:
+    for k in pop_coords:
         result = []
-        coords = coord_dict[k]
+        coords = pop_coords[k]
         result, search_type = extract.fetch_results(coords, rad=5000)
         if search_type == 'nearby':
             places = add_places(result, places, k)
-    # pprint.pprint(places)
-    output_data(places, path, search_type)
+    pprint.pprint(places)
+    output_data(places, path, method=search_type)
     print("********************Job Finished************************************")
