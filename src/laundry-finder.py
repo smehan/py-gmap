@@ -4,7 +4,6 @@
 import csv
 import os
 import pprint
-
 from Gmap import map_api as goog
 
 
