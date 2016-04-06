@@ -104,9 +104,11 @@ data/
 
 # ignore site-specific configuration file
 *.yml
+*.yaml
 config.yaml
 az_config.yaml
 /src/Gmap/google_config.yaml
 /src/Pydb/mysql_config.yaml
 
 .Rproj.user
+/src/.Rhistory
