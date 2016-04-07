@@ -5,6 +5,8 @@
 Class that will make a search for nearby places of a particular type given a lat, long
 """
 
+from loggerUtils import init_logging
+import logging
 import yaml
 import json
 import time
@@ -14,14 +16,32 @@ from urllib.request import urlopen
 
 
 class Gmap():
-    """"""
+    """
+    """
 
     def __init__(self,):
         """Constructor for Gmap"""
+        init_logging()
+        self.logger = logging.getLogger()
         with open("Gmap/google_config.yaml", 'r') as f:  #  TODO: needs to look in same dir
             settings = yaml.load(f)
         self.api_key = settings['GOOGLE_API_KEY']
         self.search_type = settings['GOOGLE_SEARCH_METHOD']
+
+    def fetch_details(self, place_id):
+        """
+        Takes a valid google place id and fetches a detail entry for place.
+        :param place_id:
+        :return:
+        """
+        resultsList = []
+        r = self._get_details(place_id)
+        if r['status'] == 'OVER_QUERY_LIMIT':
+            self.logger.warn("Google quota exceeded. Cool down!")
+            return []
+        resultsList = r['result']
+        self.logger.info("Google details feteched for %s" % resultsList['name'])
+        return resultsList
 
     def fetch_results(self, coords, rad=1000):
         """
@@ -34,7 +54,7 @@ class Gmap():
         resultsList = []
         r = self._search_google(coords[0], coords[1], rad)
         if r['status'] == 'OVER_QUERY_LIMIT':
-            print("Google quota exceeded. Cool down!")
+            self.logger.warn("Google quota exceeded. Cool down!")
             return []
         for place in r['results']:
             resultsList.append(place)
@@ -49,16 +69,48 @@ class Gmap():
                     r['next_page_token']
                 except:
                     break
-        print("Google maps searched and results returned for %s, %s." % (coords[0], coords[1]))
+        self.logger.info("Google maps searched and results returned for %s, %s." % (coords[0], coords[1]))
         return resultsList, self.search_type
 
-    def _search_google(self, lat, long, r, npt=None):
-        url = self._build_url(lat, long, radius=r, npt=npt)
+    def _get_details(self, place_id):
+        """
+        Builds and executes a REST query for details about a google place with place_id
+        :param place_id:  valid google places place_id
+        :return:
+        """
+        url = self._build_details_url(place_id)
         req = Request(url)
         r = json.loads(urlopen(req).read().decode('utf-8'))
         return r
 
-    def _build_url(self, lat, long, radius=5000, npt=None):
+    def _search_google(self, lat, long, r, npt=None):
+        """
+        Builds and executes a REST API for searching places, with pagination control
+        :param lat:
+        :param long:
+        :param r:
+        :param npt:
+        :return:
+        """
+        url = self._build_search_url(lat, long, radius=r, npt=npt)
+        req = Request(url)
+        r = json.loads(urlopen(req).read().decode('utf-8'))
+        return r
+
+    def _build_details_url(self, place_id):
+        """
+        Builds up REST API query for Google Places API details retrieve
+        :param place_id:
+        :return:
+        """
+        url = 'https://maps.googleapis.com/maps/api/place/details/json?'
+        url += 'placeid='
+        url += str(place_id)
+        url += '&key='
+        url += self.api_key
+        return url
+
+    def _build_search_url(self, lat, long, radius=5000, npt=None):
         """
         Builds up REST API query for Google Maps API nearby places search
         :param lat:
@@ -81,8 +133,8 @@ class Gmap():
         url += str(long)
         url += '&radius='
         url += str(radius)
-        url += '&types=laundry'
-        url += '&keyword=laundromat'  # keyword: "(cinema) OR (theater)" unclear if it works
+        url += '&types=car_dealer'
+        #url += '&keyword=laundromat'  # keyword: "(cinema) OR (theater)" unclear if it works
         url += '&key='
         url += self.api_key
         if npt is not None:
