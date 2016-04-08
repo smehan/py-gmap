@@ -107,7 +107,7 @@ data/
 *.yaml
 config.yaml
 az_config.yaml
-/src/Gmap/google_config.yaml
+/google_config.yml
 /src/Pydb/mysql_config.yaml
 
 .Rproj.user
