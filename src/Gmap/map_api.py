@@ -23,7 +23,7 @@ class Gmap():
         """Constructor for Gmap"""
         init_logging()
         self.logger = logging.getLogger()
-        with open("Gmap/google_config.yaml", 'r') as f:  #  TODO: needs to look in same dir
+        with open("Gmap/google_config.yml", 'r') as f:  #  TODO: needs to look in same dir
             settings = yaml.load(f)
         self.api_key = settings['GOOGLE_API_KEY']
         self.search_type = settings['GOOGLE_SEARCH_METHOD']
@@ -40,7 +40,7 @@ class Gmap():
             self.logger.warn("Google quota exceeded. Cool down!")
             return []
         resultsList = r['result']
-        self.logger.info("Google details feteched for %s" % resultsList['name'])
+        self.logger.info("Google details fetched for %s" % resultsList['name'])
         return resultsList
 
     def fetch_results(self, coords, rad=1000):
