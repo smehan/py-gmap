@@ -19,7 +19,7 @@ class Dealer(object):
 
         self.gfind = goog.Gmap()
 
-        self.outfile = "../data/output/OR.tsv"
+        self.outfile = "../data/output/WA.tsv"
         self.fieldnames = ('name', 'web', 'address', 'city', 'state', 'zip', 'phone')
 
     def destroy(self):
@@ -39,7 +39,7 @@ class Dealer(object):
             data = {}
             for line in fh:
                 parts = line.split("\t")
-                if 'OR' not in parts[4]:
+                if 'WA' not in parts[4]:
                     continue
                 c = (parts[9], parts[10].strip())
                 if c not in data.values():
@@ -124,7 +124,7 @@ class Dealer(object):
         :param total: the total to search
         :return:
         """
-        self.logger.info("%s% complete." % round(part/total, 2)*100)
+        self.logger.info("%s%% complete." % round((part/total)*100, 2))
 
     def imitate_user(self, top=1):
         """
