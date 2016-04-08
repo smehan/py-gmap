@@ -19,7 +19,7 @@ class Dealer(object):
 
         self.gfind = goog.Gmap()
 
-        self.outfile = "../data/output/CA-2.tsv"
+        self.outfile = "../data/output/OR.tsv"
         self.fieldnames = ('name', 'web', 'address', 'city', 'state', 'zip', 'phone')
 
     def destroy(self):
@@ -39,12 +39,12 @@ class Dealer(object):
             data = {}
             for line in fh:
                 parts = line.split("\t")
-                if 'CA' not in parts[4]:
+                if 'OR' not in parts[4]:
                     continue
                 c = (parts[9], parts[10].strip())
                 if c not in data.values():
                     data[parts[1]] = c
-            self.logger.info("Zip coordinates built...")
+            self.logger.info("Zip coordinates built. %s total points to search." % len(data))
             return(data)
 
     def _init_output(self):
@@ -100,18 +100,31 @@ class Dealer(object):
         return data
 
     def get_places(self, zips):
+        """
+        Iterates through all zip codes to search for places. Maintains
+        an locally scoped data structure, places.
+        :param zips: dictionary of {zips: (lat, long)}
+        :return:
+        """
         places = {}
+        index = 0  # used for progress meter
         for k in zips:
             self.imitate_user(0.05)
+            index += 1
             result = []
             coords = zips[k]
             result, search_type = self.gfind.fetch_results(coords, rad=30000)
             places = self._add_places(result, places)
-        # built up all the unique results for search. Now need to fetch details for each entry
-        # for p in places:
-        #     self.imitate_user(0.05)
-        #     places = self._add_details(p, places)
-        #     self.process_output(places[p])
+            self._zip_progress(index, len(zips))
+
+    def _zip_progress(self, part, total):
+        """
+        Displays a progress bar to indicate current search progress.
+        :param part: the portion searched
+        :param total: the total to search
+        :return:
+        """
+        self.logger.info("%s% complete." % round(part/total, 2)*100)
 
     def imitate_user(self, top=1):
         """
@@ -126,7 +139,7 @@ class Dealer(object):
 
 if __name__ == '__main__':
     cali = Dealer()  # init a new search object
-    zips_dict = cali.get_coords("../data/input/CA-test-2.txt")
+    zips_dict = cali.get_coords("../data/input/US-zips.txt")
     cali.get_places(zips_dict)
     cali.destroy()
 
