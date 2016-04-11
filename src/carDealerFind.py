@@ -143,7 +143,7 @@ class Dealer(object):
         self.logger.info('{}%% complete.'.format(round((part/total)*100, 2)))
 
     @staticmethod
-    def imitate_user(top=1):
+    def imitate_user(top=1.0):
         """
         This will cause system to pause for top*60 seconds. Makes a random
         pause on each call, to create random variability in browser requests.
