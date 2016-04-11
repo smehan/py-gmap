@@ -16,14 +16,16 @@ from loggerUtils import init_logging
 
 
 class Dealer(object):
-    def __init__(self):
+    """Will build up coordinates for a state, then will fetch unique places from
+    Google Places API, fetch details for each place, write output to a TSV."""
+    def __init__(self, state_name='WA'):
         """Constructor for Dealer search object"""
         init_logging()
         self.logger = logging.getLogger()
         self.logger.info("Bishop Car Dealer Search object initialized and logging enabled...")
 
         self.gfind = goog.Gmap()
-        self.state_name = 'LA'
+        self.state_name = state_name
         self.outfile = '../data/output/{}.tsv'.format(self.state_name)
         self.fieldnames = (
             'name',
@@ -48,21 +50,21 @@ class Dealer(object):
         :param f: file path to zip file.
         :return: dictionary of {zips: (lat, long)}
         """
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),f), "r") as fh:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),f), 'r') as fh:
             data = {}
             for line in fh:
-                parts = line.split("\t")
+                parts = line.split('\t')
                 if self.state_name not in parts[4]:
                     continue
                 c = (parts[9], parts[10].strip())
                 if c not in data.values():
                     data[parts[1]] = c
-            self.logger.info("Zip coordinates built. {} total points to search.".format(len(data)))
+            self.logger.info('Zip coordinates built. {} total points to search.'.format(len(data)))
             return data
 
     def _init_output(self):
         if not os.path.exists(self.outfile):
-            with open(self.outfile, "w", encoding='utf-8') as fh:
+            with open(self.outfile, 'w', encoding='utf-8') as fh:
                 outwriter = csv.DictWriter(fh,
                                            fieldnames=self.fieldnames,
                                            delimiter='\t')
@@ -70,7 +72,7 @@ class Dealer(object):
 
     def process_output(self, r):
         self._init_output()
-        with open(self.outfile, "a", encoding='utf-8') as fh:
+        with open(self.outfile, 'a', encoding='utf-8') as fh:
             outwriter = csv.DictWriter(fh,
                                        fieldnames=self.fieldnames,
                                        delimiter='\t')
@@ -138,7 +140,7 @@ class Dealer(object):
         :param total: the total to search
         :return:
         """
-        self.logger.info("{}%% complete.".format(round((part/total)*100, 2)))
+        self.logger.info('{}%% complete.'.format(round((part/total)*100, 2)))
 
     @staticmethod
     def imitate_user(top=1):
@@ -153,10 +155,10 @@ class Dealer(object):
         time.sleep(delay)
 
 if __name__ == '__main__':
-    cali = Dealer()  # init a new search object
-    zips_dict = cali.get_coords("../data/input/US-zips.txt")
-    cali.get_places(zips_dict)
-    cali.destroy()
+    dealer = Dealer('MD')  # init a new search object with the names state to be searched
+    zips_dict = dealer.get_coords('../data/input/US-zips.txt')
+    dealer.get_places(zips_dict)
+    dealer.destroy()
     sys.exit()
 
 
