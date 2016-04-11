@@ -23,8 +23,8 @@ class Dealer(object):
         self.logger.info("Bishop Car Dealer Search object initialized and logging enabled...")
 
         self.gfind = goog.Gmap()
-
-        self.outfile = "../data/output/KS.tsv"
+        self.state_name = 'LA'
+        self.outfile = '../data/output/{}.tsv'.format(self.state_name)
         self.fieldnames = (
             'name',
             'web',
@@ -44,7 +44,7 @@ class Dealer(object):
 
     def get_coords(self, f):
         """
-        Reads in all zips and outputs a datastructure with required zips: (lat, long)
+        Reads in all zips and outputs a data structure with required zips: (lat, long)
         :param f: file path to zip file.
         :return: dictionary of {zips: (lat, long)}
         """
@@ -52,7 +52,7 @@ class Dealer(object):
             data = {}
             for line in fh:
                 parts = line.split("\t")
-                if 'KS' not in parts[4]:
+                if self.state_name not in parts[4]:
                     continue
                 c = (parts[9], parts[10].strip())
                 if c not in data.values():
