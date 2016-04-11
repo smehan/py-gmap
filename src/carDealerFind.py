@@ -1,14 +1,19 @@
 # Copyright (C) 2015-2016 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
 #
 # -*- coding: UTF-8 -*-
-from loggerUtils import init_logging
+
+# standard modules
 import logging
 import csv
 import os
-from Gmap import map_api as goog
+import sys
 import time
 import random
-import pprint
+# 3rd party modules
+from Gmap import map_api as goog
+# Application modules
+from loggerUtils import init_logging
+
 
 class Dealer(object):
     def __init__(self):
@@ -19,8 +24,16 @@ class Dealer(object):
 
         self.gfind = goog.Gmap()
 
-        self.outfile = "../data/output/WA.tsv"
-        self.fieldnames = ('name', 'web', 'address', 'city', 'state', 'zip', 'phone')
+        self.outfile = "../data/output/KS.tsv"
+        self.fieldnames = (
+            'name',
+            'web',
+            'address',
+            'city',
+            'state',
+            'zip',
+            'phone'
+        )
 
     def destroy(self):
         """
@@ -39,13 +52,13 @@ class Dealer(object):
             data = {}
             for line in fh:
                 parts = line.split("\t")
-                if 'WA' not in parts[4]:
+                if 'KS' not in parts[4]:
                     continue
                 c = (parts[9], parts[10].strip())
                 if c not in data.values():
                     data[parts[1]] = c
-            self.logger.info("Zip coordinates built. %s total points to search." % len(data))
-            return(data)
+            self.logger.info("Zip coordinates built. {} total points to search.".format(len(data)))
+            return data
 
     def _init_output(self):
         if not os.path.exists(self.outfile):
@@ -84,7 +97,8 @@ class Dealer(object):
         if data[p_id]['name'] != result['name']:
             return data
         elif len(result['address_components']) >= 6:
-            data[p_id]['address'] = result['address_components'][0]['long_name'] + " " + result['address_components'][1]['long_name']
+            data[p_id]['address'] = result['address_components'][0]['long_name'] + \
+                                    " " + result['address_components'][1]['long_name']
             data[p_id]['city'] = result['address_components'][2]['long_name']
             data[p_id]['state'] = result['address_components'][3]['short_name']
             data[p_id]['zip'] = result['address_components'][5]['long_name']
@@ -124,9 +138,10 @@ class Dealer(object):
         :param total: the total to search
         :return:
         """
-        self.logger.info("%s%% complete." % round((part/total)*100, 2))
+        self.logger.info("{}%% complete.".format(round((part/total)*100, 2)))
 
-    def imitate_user(self, top=1):
+    @staticmethod
+    def imitate_user(top=1):
         """
         This will cause system to pause for top*60 seconds. Makes a random
         pause on each call, to create random variability in browser requests.
@@ -142,4 +157,6 @@ if __name__ == '__main__':
     zips_dict = cali.get_coords("../data/input/US-zips.txt")
     cali.get_places(zips_dict)
     cali.destroy()
+    sys.exit()
+
 
