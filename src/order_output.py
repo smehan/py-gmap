@@ -66,3 +66,4 @@ if __name__ == '__main__':
     model = read_model("../data/output/model.csv")
     output = sift_results(places, model)
     write_output(output, "../data/output/sorted-20160331.tsv")
+
