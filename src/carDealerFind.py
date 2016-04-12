@@ -42,7 +42,8 @@ class Dealer(object):
         method to cleanly destroy all objects
         :return:
         """
-        self.logger.info("Bishop Car Dealer Search object destroyed and job finished....")
+        self.logger.info("Bishop Car Dealer Search object destroyed "
+                         "and {} job finished....".format(self.state_name))
 
     def get_coords(self, f):
         """
@@ -59,7 +60,9 @@ class Dealer(object):
                 c = (parts[9], parts[10].strip())
                 if c not in data.values():
                     data[parts[1]] = c
-            self.logger.info('Zip coordinates built. {} total points to search.'.format(len(data)))
+            self.logger.info('Zip coordinates built for {state}. '
+                             '{points} total points to search...'.format(state=self.state_name,
+                                                                         points=len(data)))
             return data
 
     def _init_output(self):
@@ -155,7 +158,7 @@ class Dealer(object):
         time.sleep(delay)
 
 if __name__ == '__main__':
-    dealer = Dealer('MD')  # init a new search object with the names state to be searched
+    dealer = Dealer('MA')  # init a new search object with the names state to be searched
     zips_dict = dealer.get_coords('../data/input/US-zips.txt')
     dealer.get_places(zips_dict)
     dealer.destroy()
