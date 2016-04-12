@@ -109,4 +109,6 @@ az_config.yaml
 /src/Gmap/google_config.yaml
 /src/Pydb/mysql_config.yaml
 
+# ignore site-specific R files
 .Rproj.user
+/src/.Rhistory
