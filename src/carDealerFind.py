@@ -161,7 +161,7 @@ class Dealer(object):
         time.sleep(delay)
 
 if __name__ == '__main__':
-    dealer = Dealer('MN')  # init a new search object with the names state to be searched
+    dealer = Dealer('MI')  # init a new search object with the names state to be searched
     zips_dict = dealer.get_coords('../data/input/US-zips.txt')
     dealer.get_places(zips_dict)
     dealer.destroy()
