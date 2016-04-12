@@ -1,5 +1,5 @@
 create table S2501_ACS (
-    pk_id int not null AUTO_INCREMENT,
+    pk_id int unsigned not null AUTO_INCREMENT,
     HC01_VC01 float not null,
     HC01_VC01_MOE float not null,
     HC02_VC01 float not null,
@@ -54,7 +54,9 @@ create table S2501_ACS (
     HC02_VC39_MOE float not null,
     HC03_VC39 float not null,
     HC03_VC39_MOE float not null,
-    track_pk_id int,
+    track_pk_id int unsigned,
     PRIMARY KEY (pk_id),
-    FOREIGN KEY (track_pk_id) REFERENCES census_tract_2010(pk_id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (track_pk_id) REFERENCES census_tract_2010 (pk_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );

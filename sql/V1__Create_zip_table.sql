@@ -1,5 +1,5 @@
 create table zip (
-    pk_id int not null AUTO_INCREMENT,
+    pk_id int unsigned not null AUTO_INCREMENT,
     zipcode varchar(5) not null,
     lat numeric(7,4),
     lon numeric(7,4),
