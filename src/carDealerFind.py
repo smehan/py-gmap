@@ -98,7 +98,10 @@ class Dealer(object):
         :param data: dict to write results into and return
         :return: return dict with new entry details
         """
-        result = self.gfind.fetch_details(p_id)
+        try:
+            result = self.gfind.fetch_details(p_id)
+        except:
+            return data
         if data[p_id]['name'] != result['name']:
             return data
         elif len(result['address_components']) >= 6:
@@ -158,7 +161,7 @@ class Dealer(object):
         time.sleep(delay)
 
 if __name__ == '__main__':
-    dealer = Dealer('MA')  # init a new search object with the names state to be searched
+    dealer = Dealer('MI')  # init a new search object with the names state to be searched
     zips_dict = dealer.get_coords('../data/input/US-zips.txt')
     dealer.get_places(zips_dict)
     dealer.destroy()
