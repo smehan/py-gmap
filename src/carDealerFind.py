@@ -146,7 +146,7 @@ class Dealer(object):
         :param total: the total to search
         :return:
         """
-        self.logger.info('{}%% complete.'.format(round((part/total)*100, 2)))
+        self.logger.info('{}% complete.'.format(round((part/total)*100, 2)))
 
     @staticmethod
     def imitate_user(top=1.0):
@@ -168,3 +168,10 @@ if __name__ == '__main__':
     sys.exit()
 
 
+if __name__ == '__main__':
+    for state in ['MI', 'NV', 'NH', 'NJ', 'NM', 'WY']:
+        dealer = Dealer(state)  # init a new search object with the names state to be searched
+        zips_dict = dealer.get_coords('../data/input/US-zips.txt')
+        dealer.get_places(zips_dict)
+        dealer.destroy()
+    sys.exit()
