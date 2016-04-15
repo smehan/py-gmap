@@ -78,6 +78,7 @@ Vagrant.configure(2) do |config|
   #
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "ansible/mysql.yml"
+    ansible.playbook = "ansible/pip.yml"
   end
 end
 
