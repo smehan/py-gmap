@@ -1,10 +1,17 @@
 # Copyright (C) 2015-2016 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
 #
 # -*- coding: UTF-8 -*-
+
+# standard modules
 import csv
 import os
 import pprint
+import logging
+import json
+# 3rd party modules
 from Gmap import map_api as goog
+# Application modules
+from loggerUtils import init_logging
 
 
 def get_all_coords():
@@ -39,28 +46,25 @@ def add_places(g, d, zip):
     return d
 
 
-def clean_places(places):
-    for p in places:
-        1+1
-
-
-def reduce_coords(coords, zips):
+def reduce_coords(coords, zips=None):
     """
     Takes in the full set of coords by zip, and a list of zips to target and outputs
     the reduced set of coords by zip.
     :param coords: dictionary of {zip: (lat, long)}
-    :param zips: list of [zips] that should be targeted
+    :param zips: list of [zips] that should be targeted. If none supplied is None
     :return: a reduced dictionary of {zip:(lat, long)}
     """
+    if not zips:  # nothing supplied to reduce, so return full input
+        return coords
     output = {z:coords.get(z, None) for z in zips}
     return output
 
 
-def output_data(data, path, json=False, method='radar'):
+def output_data(data, path, use_json=False, method='radar'):
     names = ('target-zip', 'name', 'address', 'plid', 'id')
     if method == 'radar':  # TODO: slim support for radar, so needs to dump json
-        json = True
-    if json is True:
+        use_json = True
+    if use_json is True:
         with open(path, 'w') as fh:
             json.dump(data, fh)
     elif not os.path.exists(path):
@@ -71,18 +75,17 @@ def output_data(data, path, json=False, method='radar'):
         with open(path, 'a') as fh:
             outwriter = csv.writer(fh, delimiter='\t')
             for name in data:
-                # if 'cleaner' in name.lower():
-                #     continue
-                # if 'carpet' in name.lower():
-                #     continue
                 outwriter.writerow([data[name][3]['target-zip'], name, data[name][0]['address'], data[name][1]['plid'], data[name][2]['id']])
 
 if __name__ == '__main__':
-    path = "../data/output/search-20160331.csv"
+    path = "../data/output/search-20160415.csv"
+    # these lists are from model.py output, ranked on that feature
+    # currently set up to only use one as param in reduce_coords
     top_pop = ['11550','11561','11520','11542','11590','11050','11580','11003','11801','11021']
+    top_renter_den = ['11096', '11022', '11550', '11571', '11551', '11542', '11561', '11516', '11582', '11549']
     extract = goog.Gmap()  # build a gmap object to handle interface with google maps api.
     coord_dict = get_all_coords()
-    pop_coords = reduce_coords(coord_dict, top_pop)
+    pop_coords = reduce_coords(coord_dict, top_renter_den)
     places = {}
     for k in pop_coords:
         result = []
@@ -91,5 +94,5 @@ if __name__ == '__main__':
         if search_type == 'nearby':
             places = add_places(result, places, k)
     pprint.pprint(places)
-    output_data(places, path, method=search_type)
+    output_data(places, path)
     print("********************Job Finished************************************")
