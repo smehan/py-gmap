@@ -20,7 +20,7 @@ def get_all_coords():
         for line in infh:
             parts = line.split("\t")
             c = (parts[9], parts[10].strip())
-            if c not in data.values():
+            if parts[1] not in data:
                 data[parts[1]] = c
         return(data)
 
