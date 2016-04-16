@@ -135,7 +135,7 @@ class Dealer(object):
             index += 1
             result = []
             coords = zips[k]
-            result, search_type = self.gfind.fetch_results(coords, rad=30000)
+            result, search_type = self.gfind.fetch_results(coords, rad=30000, place_type='car-dealer')
             places = self._add_places(result, places)
             self._zip_progress(index, len(zips))
 
@@ -159,13 +159,6 @@ class Dealer(object):
         random.seed()
         delay = random.random()*top*60  # time.sleep expects seconds
         time.sleep(delay)
-
-if __name__ == '__main__':
-    dealer = Dealer('MI')  # init a new search object with the names state to be searched
-    zips_dict = dealer.get_coords('../data/input/US-zips.txt')
-    dealer.get_places(zips_dict)
-    dealer.destroy()
-    sys.exit()
 
 
 if __name__ == '__main__':
