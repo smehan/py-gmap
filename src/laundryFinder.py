@@ -90,7 +90,7 @@ if __name__ == '__main__':
     for k in pop_coords:
         result = []
         coords = pop_coords[k]
-        result, search_type = extract.fetch_results(coords, rad=5000)
+        result, search_type = extract.fetch_results(coords, rad=5000, place_type='laundry', keywords=['laundromat'])
         if search_type == 'nearby':
             places = add_places(result, places, k)
     pprint.pprint(places)

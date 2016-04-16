@@ -48,15 +48,17 @@ class Gmap(object):
         self.logger.info("Google details fetched for %s" % results_list['name'])
         return results_list
 
-    def fetch_results(self, coords, rad=1000):
+    def fetch_results(self, coords, rad=1000, place_type=None, keywords=None):
         """
         Takes a coordinate tuple and a radius and fetches a result set.
         Predetermined url at this point.
         :param coords: a tuple of lat and long for this search
         :param rad: radius of search
+        :param place_type: a valid google place type
+        :param keywords: a list of keywords to search on
         :return: list of json results
         """
-        r = self._search_google(coords[0], coords[1], rad)
+        r = self._search_google(coords[0], coords[1], rad, place_type, keywords)
         if r is None:
             self.logger.warn('Failure to return search from google API'
                              ' for {lat}, {long}'.format(lat=coords[0],
@@ -71,7 +73,7 @@ class Gmap(object):
             time.sleep(2)
             while True:
                 npt = r['next_page_token']
-                r = self._search_google(coords[0], coords[1], rad, npt)
+                r = self._search_google(coords[0], coords[1], rad, place_type, keywords, npt)
                 [results_list.append(place) for place in r['results']]
                 try:
                     r['next_page_token']
@@ -104,19 +106,6 @@ class Gmap(object):
         url = self._build_details_url(place_id)
         return self._make_request(url)
 
-    def _search_google(self, lat, long, radius, npt=None):
-        """
-        Builds and executes a REST API call
-        for searching places, including param for pagination control
-        :param lat:
-        :param long:
-        :param radius: raidus to use for radar search
-        :param npt: next page token from multi-page search result
-        :return:
-        """
-        url = self._build_search_url(lat, long, radius=radius, npt=npt)
-        return self._make_request(url)
-
     def _build_details_url(self, place_id):
         """
         Builds up REST API query for Google Places API details retrieve
@@ -130,7 +119,21 @@ class Gmap(object):
         url += self.api_key
         return url
 
-    def _build_search_url(self, lat, long, radius=5000, npt=None):
+    def _search_google(self, lat, long, radius, place_type, keywords, npt=None):
+        """
+        Builds and executes a REST API call
+        for searching places, including param for pagination control
+        :param lat:
+        :param long:
+        :param radius: raidus to use for radar search
+        :param npt: next page token from multi-page search result
+        :return:
+        """
+        url = self._build_search_url(lat, long, radius=radius,
+                                     place_type=place_type, keywords=keywords, npt=npt)
+        return self._make_request(url)
+
+    def _build_search_url(self, lat, long, radius=5000, place_type=None, keywords=None, npt=None):
         """
         Builds up REST API query for Google Maps API nearby places search
         :param lat:
@@ -153,8 +156,12 @@ class Gmap(object):
         url += str(long)
         url += '&radius='
         url += str(radius)  # TODO: types and keywords need to be parameterized
-        url += '&types=car_dealer'  # types=laundry
-        #url += '&keyword=laundromat'  # keyword: "(cinema) OR (theater)" unclear if it works
+        if place_type is not None:
+            url += '&types='
+            url += place_type
+        if keywords is not None:
+            url += '&keyword='
+            url += keywords[0]  # keyword: "(cinema) OR (theater)" unclear if it works
         url += '&key='
         url += self.api_key
         if npt is not None:
