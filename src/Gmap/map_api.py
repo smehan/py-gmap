@@ -66,15 +66,13 @@ class Gmap(object):
             self.logger.warn("Google quota exceeded. Cool down!")
             return []
         results_list = []
-        for place in r['results']:
-            results_list.append(place)
+        [results_list.append(place) for place in r['results']]
         if 'next_page_token' in r:
             time.sleep(2)
             while True:
                 npt = r['next_page_token']
                 r = self._search_google(coords[0], coords[1], rad, npt)
-                for place in r['results']:
-                    results_list.append(place)
+                [results_list.append(place) for place in r['results']]
                 try:
                     r['next_page_token']
                 except:
