@@ -155,13 +155,19 @@ class Gmap(object):
         url += ','
         url += str(long)
         url += '&radius='
-        url += str(radius)  # TODO: types and keywords need to be parameterized
+        url += str(radius)
         if place_type is not None:
             url += '&types='
             url += place_type
         if keywords is not None:
             url += '&keyword='
-            url += keywords[0]  # keyword: "(cinema) OR (theater)" unclear if it works
+            if len(keywords) > 1:
+                # TODO: find a way to add each keyword in () + OR separator
+                pass
+            else: # only one so no OR needed
+                pass
+            url += '(garden)OR(horticultural)OR(agricultural)OR(hydroponic)'
+            #url += keywords[0]  # keyword: "(cinema) OR (theater)" unclear if it works
         url += '&key='
         url += self.api_key
         if npt is not None:
