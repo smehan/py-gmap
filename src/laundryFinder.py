@@ -63,7 +63,8 @@ def reduce_coords(coords, zips=None):
 def output_data(data, path, use_json=False, method='radar'):
     names = ('target-zip', 'name', 'address', 'plid', 'id')
     if method == 'radar':  # TODO: slim support for radar, so needs to dump json
-        use_json = True
+        #use_json = True
+        pass
     if use_json is True:
         with open(path, 'w') as fh:
             json.dump(data, fh)
@@ -90,6 +91,7 @@ if __name__ == '__main__':
     for k in pop_coords:
         result = []
         coords = pop_coords[k]
+        # TODO: Need to make keywords param work. Still need to hardwire keywords in map_api
         result, search_type = extract.fetch_results(coords, rad=5000, place_type='laundry', keywords=['laundromat'])
         if search_type == 'nearby':
             places = add_places(result, places, k)

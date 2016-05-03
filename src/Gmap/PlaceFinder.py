@@ -168,7 +168,7 @@ if __name__ == '__main__':
               'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT',
               'VA', 'WA', 'WV', 'WI', 'WY']
     for state in states:
-        dealer = PlaceFinder(state)  # init a new search object with the names state to be searched
+        dealer = PlaceFinder(state)  # init a new search object with the state names to be searched
         zips_dict = dealer.get_coords('../../data/input/US-zips.txt')
         dealer.get_places(zips_dict)
         dealer.destroy()

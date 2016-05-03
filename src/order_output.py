@@ -62,8 +62,8 @@ def write_output(d, path):
             writer.writerow(d[r])
 
 if __name__ == '__main__':
-    places = read_places("../data/output/search-20160331.csv")
+    places = read_places("../data/output/search-20160415.csv")
     model = read_model("../data/output/model.csv")
     output = sift_results(places, model)
-    write_output(output, "../data/output/sorted-20160331.tsv")
+    write_output(output, "../data/output/sorted-20160415.tsv")
 

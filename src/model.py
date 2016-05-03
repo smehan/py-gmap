@@ -66,7 +66,7 @@ class Model():
         """
         with self.db.con.cursor() as cursor:
             for z in self.tracts:
-                for k,v in self.tracts[z].items():
+                for k, v in self.tracts[z].items():
                     if k == 'zip_pk_id':
                         continue
                     select_sql = "SELECT `HC01_VC14`, `HC02_VC14`, `HC03_VC14` FROM `S2503_ACS` " \
@@ -94,13 +94,15 @@ class Model():
                                  "WHERE `track_pk_id`=%s"
                     cursor.execute(select_sql, (k))
                     ret = cursor.fetchone()
-                    if ret is not None:  # TODO: Flip this guard and warn in logger for None
+                    if ret:
                         self.tracts[z][k]['HC01_VC01'] = ret['HC01_VC01']
                         self.tracts[z][k]['HC02_VC01'] = ret['HC02_VC01']
                         self.tracts[z][k]['HC03_VC01'] = ret['HC03_VC01']
                         self.tracts[z][k]['HC01_VC01_MOE'] = ret['HC01_VC01_MOE']
                         self.tracts[z][k]['HC02_VC01_MOE'] = ret['HC02_VC01_MOE']
                         self.tracts[z][k]['HC03_VC01_MOE'] = ret['HC03_VC01_MOE']
+                    else:  # TODO: Move print to a warn in logger
+                        print("_add_housing failed for track pk: {}".format(k))
 
     def _add_occupancy_features(self):
         """
@@ -143,10 +145,11 @@ class Model():
                                  "WHERE track_pk_id=%s"
                     cursor.execute(select_sql, (k))
                     ret = cursor.fetchone()
-                    if ret is not None:  # TODO: flip guard to None and output to logger
+                    if ret:
                         self.tracts[z][k]['occupancy'] = ret
                     else:
                         self.tracts[z][k]['occupancy'] = {}
+                        print("add_occupancy_features failed for track pk".format(k))  # TODO: move output to logger
 
     def build_rental_housing_densities(self):
         """
@@ -176,7 +179,7 @@ class Model():
             self.tracts[z]['max_h3_renter_density'] = self.tracts[z].get('max_h3_renter_density', 0.0)
             self.tracts[z]['max_h4_renter_density'] = self.tracts[z].get('max_h4_renter_density', 0.0)
             self.tracts[z]['renter_pop_est'] = self.tracts[z].get('renter_pop_est', 0.0)
-            for k,v in self.tracts[z].items():
+            for k, v in self.tracts[z].items():
                 if isinstance(k, int):
                     renters = v.get('HC03_VC01', 0)
                     h1_renters = v['occupancy'].get('HC03_VC03', 0)
@@ -194,7 +197,7 @@ class Model():
                         current_den = 0.0
                     t_h_renters = h1_renters + h2_renters + h3_renters + h4_renters
                     if t_h_renters > 0:
-                        ren_norm = renters/(t_h_renters)
+                        ren_norm = renters/t_h_renters
                     else:
                         ren_norm = 1
                     h1_renters_norm = h1_renters*ren_norm
@@ -274,7 +277,7 @@ class Model():
             t_pop = 0
             self.tracts[z]['max_renter_density'] = self.tracts[z].get('max_renter_density', 0.0)
             self.tracts[z]['max_renter_income'] = self.tracts[z].get('max_renter_income', 0)
-            for k,v in self.tracts[z].items():
+            for k, v in self.tracts[z].items():
                 if isinstance(k, int):
                     income = v.get('HC03_VC14', 0)
                     pop = v.get('HC03_VC01', 0)
@@ -295,21 +298,20 @@ class Model():
         """
         output = []
         for z in self.tracts:
-            line = [z]
-            line.append(self.tracts[z].get('avg_renter_density', 0.0))
-            line.append(self.tracts[z].get('max_renter_density', 0.0))
-            line.append(self.tracts[z].get('avg_renter_income', 0))
-            line.append(self.tracts[z].get('max_renter_income', 0))
-            line.append(self.tracts[z].get('avg_h1_renter_density', 0))
-            line.append(self.tracts[z].get('max_h1_renter_density', 0))
-            line.append(self.tracts[z].get('avg_h2_renter_density', 0))
-            line.append(self.tracts[z].get('max_h2_renter_density', 0))
-            line.append(self.tracts[z].get('avg_h3_renter_density', 0))
-            line.append(self.tracts[z].get('max_h3_renter_density', 0))
-            line.append(self.tracts[z].get('avg_h4_renter_density', 0))
-            line.append(self.tracts[z].get('max_h4_renter_density', 0))
-            line.append(self.tracts[z].get('renter_pop_est', 0))
-            output.append(line)
+            output.append([z,
+                            self.tracts[z].get('avg_renter_density', 0.0),
+                            self.tracts[z].get('max_renter_density', 0.0),
+                            self.tracts[z].get('avg_renter_income', 0),
+                            self.tracts[z].get('max_renter_income', 0),
+                            self.tracts[z].get('avg_h1_renter_density', 0),
+                            self.tracts[z].get('max_h1_renter_density', 0),
+                            self.tracts[z].get('avg_h2_renter_density', 0),
+                            self.tracts[z].get('max_h2_renter_density', 0),
+                            self.tracts[z].get('avg_h3_renter_density', 0),
+                            self.tracts[z].get('max_h3_renter_density', 0),
+                            self.tracts[z].get('avg_h4_renter_density', 0),
+                            self.tracts[z].get('max_h4_renter_density', 0),
+                            self.tracts[z].get('renter_pop_est', 0)])
         self.make_output(output, filename='model')
 
     def make_output(self, data, meth=None, filename=None):
@@ -319,7 +321,7 @@ class Model():
             return
         elif filename is None:
             filename='output'
-        dir_name='../data/output'
+        dir_name = '../data/output'
         filename_suffix = '.csv'
         path = os.path.join(dir_name, filename + filename_suffix)
         with open(path, 'w') as fh:
