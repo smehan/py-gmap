@@ -26,7 +26,12 @@ class PlaceFinder(object):
 
         self.gfind = goog.Gmap()
         self.state_name = state_name
-        self.outfile = '../../data/output/{}.tsv'.format(self.state_name)
+        data_dir = '../../data/output'
+        if os.path.exists(data_dir):
+            self.outfile = '{data_dir}{state}.tsv'.format(data_dir=data_dir, state=self.state_name)
+        else:
+            self.logger.error("Data output directory mis-configured in PlaceFinder.py....exiting...")
+            sys.exit()
         self.fieldnames = (
             'name',
             'web',
@@ -34,8 +39,7 @@ class PlaceFinder(object):
             'city',
             'state',
             'zip',
-            'phone'
-        )
+            'phone')
 
     def destroy(self):
         """
@@ -112,7 +116,7 @@ class PlaceFinder(object):
             data[p_id]['zip'] = result['address_components'][5]['long_name']
             data[p_id]['phone'] = result.get('formatted_phone_number', '')
             data[p_id]['web'] = result.get('website', '')
-        else:  # TODO: break out pricipal parts of formatted address to give better exception handling
+        else:  # TODO: break out principal parts of formatted address to give better exception handling
             data[p_id]['address'] = result.get('formatted_address', '')
             data[p_id]['city'] = result.get('formatted_address', '')
             data[p_id]['state'] = result.get('formatted_address', '')
@@ -124,8 +128,8 @@ class PlaceFinder(object):
     def get_places(self, zips):
         """
         Iterates through all zip codes to search for places. Maintains
-        an locally scoped data structure, places.
-        Pass google place_type and keywords, if any, here for url builder.
+        a locally scoped data structure, places.
+        Pass google place_type and a tuple of keywords, if any, here for url builder.
         :param zips: dictionary of {zips: (lat, long)}
         :return:
         """
@@ -136,7 +140,7 @@ class PlaceFinder(object):
             index += 1
             result = []
             coords = zips[k]
-            result, search_type = self.gfind.fetch_results(coords, rad=30000, place_type='store', keywords=['garden', 'store'])
+            result, search_type = self.gfind.fetch_results(coords, rad=30000, place_type='store', keywords=('garden', 'store'))
             places = self._add_places(result, places)
             self._zip_progress(index, len(zips))
 

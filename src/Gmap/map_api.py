@@ -9,6 +9,7 @@ Class that will make a search for nearby places of a particular type given a lat
 import logging
 import json
 import time
+import os
 from urllib.request import Request
 from urllib.request import urlopen
 # 3rd party modules
@@ -20,13 +21,12 @@ from loggerUtils import init_logging
 class Gmap(object):
     """
     """
-
     def __init__(self,):
         """Constructor for Gmap"""
         init_logging()
         self.logger = logging.getLogger()
-        with open("Gmap/google_config.yml", 'r') as f:  # TODO: needs to look in same dir
-            settings = yaml.load(f)
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "google_config.yml"), "r") as fh:
+            settings = yaml.load(fh)
         self.api_key = settings['GOOGLE_API_KEY']
         self.search_type = settings['GOOGLE_SEARCH_METHOD']
 
