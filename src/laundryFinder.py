@@ -38,18 +38,17 @@ def add_places(g, d, zip):
         if e['name'] in d:
             continue
         else:
-            details = [{'address': e['vicinity']},
-                       {'plid': e['place_id']},
-                       {'id': e['id']},
-                       {'target-zip': zip}]
-            d[e['name']] = details
+            d[e['name']] = [{'address': e['vicinity']},
+                            {'plid': e['place_id']},
+                            {'id': e['id']},
+                            {'target-zip': zip}]
     return d
 
 
 def reduce_coords(coords, zips=None):
     """
-    Takes in the full set of coords by zip, and an
-    optional list of zips to target and outputs
+    Takes in the full set of coords by zip, and a
+    list of zips to target and outputs
     the reduced set of coords by zip.
     :type zips: list
     :param coords: dictionary of {zip: (lat, long)}
