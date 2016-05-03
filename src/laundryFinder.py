@@ -48,16 +48,17 @@ def add_places(g, d, zip):
 
 def reduce_coords(coords, zips=None):
     """
-    Takes in the full set of coords by zip, and a list of zips to target and outputs
+    Takes in the full set of coords by zip, and an
+    optional list of zips to target and outputs
     the reduced set of coords by zip.
+    :type zips: list
     :param coords: dictionary of {zip: (lat, long)}
     :param zips: list of [zips] that should be targeted. If none supplied is None
     :return: a reduced dictionary of {zip:(lat, long)}
     """
     if not zips:  # nothing supplied to reduce, so return full input
         return coords
-    output = {z:coords.get(z, None) for z in zips}
-    return output
+    return {z:coords.get(z, None) for z in zips}
 
 
 def output_data(data, path, use_json=False, method='radar'):
