@@ -34,7 +34,7 @@ class Gmap(object):
         """
         Takes a valid google place id and fetches a detail entry for place.
         :param place_id:
-        :return:
+        :return: results as a list
         """
         r = self._get_details(place_id)
         if r is None:
@@ -56,7 +56,7 @@ class Gmap(object):
         :param rad: radius of search
         :param place_type: a valid google place type
         :param keywords: a list of keywords to search on
-        :return: list of json results
+        :return: list of json results, search_type executed
         """
         r = self._search_google(coords[0], coords[1], rad, place_type, keywords)
         if r is None:
@@ -64,7 +64,7 @@ class Gmap(object):
                              ' for {lat}, {long}'.format(lat=coords[0],
                                                          long=coords[1]))
             return []
-        if r['status'] == 'OVER_QUERY_LIMIT':
+        elif r['status'] == 'OVER_QUERY_LIMIT':
             self.logger.warn("Google quota exceeded. Cool down!")
             return []
         results_list = []
@@ -77,14 +77,15 @@ class Gmap(object):
                 [results_list.append(place) for place in r['results']]
                 try:
                     r['next_page_token']
-                except:
+                except Exception as e:
+                    self.logger.error("Error fetching next page from Google: {}".format(e))
                     break
         self.logger.info("Google maps searched and results returned for %s, %s." % (coords[0], coords[1]))
         return results_list, self.search_type
 
     def _make_request(self, request_url):
         """
-        Builds a HTTP Request object and opens and reads data from the object.
+        Builds a HTTP Request object then opens and reads data from that object.
         :param request_url: URL to use for request
         :return: json payload from URL
         """
@@ -156,10 +157,10 @@ class Gmap(object):
         url += str(long)
         url += '&radius='
         url += str(radius)
-        if place_type is not None:
+        if place_type:
             url += '&types='
             url += place_type
-        if keywords is not None:
+        if keywords:
             url += '&keyword='
             if len(keywords) > 1:
                 # TODO: find a way to add each keyword in () + OR separator
@@ -174,8 +175,6 @@ class Gmap(object):
             url += '&pagetoken='
             url += str(npt)
         return url
-
-
 
 
 if __name__ == '__main__':
