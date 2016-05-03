@@ -58,7 +58,7 @@ def reduce_coords(coords, zips=None):
     """
     if not zips:  # nothing supplied to reduce, so return full input
         return coords
-    return {z:coords.get(z, None) for z in zips}
+    return {z: coords.get(z, None) for z in zips}
 
 
 def output_data(data, path, use_json=False, method='radar'):
@@ -80,7 +80,7 @@ def output_data(data, path, use_json=False, method='radar'):
                 outwriter.writerow([data[name][3]['target-zip'], name, data[name][0]['address'], data[name][1]['plid'], data[name][2]['id']])
 
 if __name__ == '__main__':
-    path = "../data/output/search-20160415.csv"
+    path = "../data/output/search-20160503.csv"
     # these lists are from model.py output, ranked on that feature
     # currently set up to only use one as param in reduce_coords
     top_pop = ['11550','11561','11520','11542','11590','11050','11580','11003','11801','11021']
@@ -92,8 +92,7 @@ if __name__ == '__main__':
     for k in pop_coords:
         result = []
         coords = pop_coords[k]
-        # TODO: Need to make keywords param work. Still need to hardwire keywords in map_api
-        result, search_type = extract.fetch_results(coords, rad=5000, place_type='laundry', keywords=['laundromat'])
+        result, search_type = extract.fetch_results(coords, rad=5000, place_type='laundry', keywords=('laundromat'))
         if search_type == 'nearby':
             places = add_places(result, places, k)
     pprint.pprint(places)

@@ -55,7 +55,7 @@ class Gmap(object):
         :param coords: a tuple of lat and long for this search
         :param rad: radius of search
         :param place_type: a valid google place type
-        :param keywords: a list of keywords to search on
+        :param keywords: a tuple of keywords to search on
         :return: list of json results, search_type executed
         """
         r = self._search_google(coords[0], coords[1], rad, place_type, keywords)
@@ -101,7 +101,7 @@ class Gmap(object):
     def _get_details(self, place_id):
         """
         Builds and executes a REST query for details about a google place with place_id
-        :param place_id:  valid google places place_id
+        :param place_id: valid google places place_id
         :return:
         """
         url = self._build_details_url(place_id)
@@ -111,7 +111,7 @@ class Gmap(object):
         """
         Builds up REST API query for Google Places API details retrieve
         :param place_id:
-        :return:
+        :return: the fully formed url
         """
         url = 'https://maps.googleapis.com/maps/api/place/details/json?'
         url += 'placeid='
@@ -127,6 +127,7 @@ class Gmap(object):
         :param lat:
         :param long:
         :param radius: raidus to use for radar search
+        :param keywords: a tuple of keywords to search on
         :param npt: next page token from multi-page search result
         :return:
         """
@@ -140,6 +141,10 @@ class Gmap(object):
         :param lat:
         :param long:
         :param radius:
+        :type place_type: str
+        :param place_type: optional flag for which google place type to search on
+        :type keywords: tuple
+        :param keywords: optional tuple of keywords to use for search
         :param npt: the next page token returned from google, if there is one.
         :return:
         """
@@ -162,13 +167,10 @@ class Gmap(object):
             url += place_type
         if keywords:
             url += '&keyword='
-            if len(keywords) > 1:
-                # TODO: find a way to add each keyword in () + OR separator
-                pass
+            if len(keywords) == 1:
+                url += keywords[0]
             else: # only one so no OR needed
-                pass
-            url += '(garden)OR(horticultural)OR(agricultural)OR(hydroponic)'
-            #url += keywords[0]  # keyword: "(cinema) OR (theater)" unclear if it works
+                url += "OR".join(('(' + x + ')' for x in keywords))
         url += '&key='
         url += self.api_key
         if npt is not None:
