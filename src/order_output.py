@@ -1,9 +1,15 @@
 # Copyright (C) 2015-2016 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
 #
 # -*- coding: UTF-8 -*-
+
+# standard libs
 import csv
 import os
+import datetime
+# 3rd party libs
 import pprint
+# application libs
+
 
 def read_places(path):
     with open(path, 'r') as fh:
@@ -23,7 +29,7 @@ def read_model(path):
 def sift_results(places, model):
     freq = {}
     m = get_model_dict(model)
-    for k,v in places.items():
+    for k, v in places.items():
         places[k]['avg_renter_density'] = m[places[k]['target-zip']]['avg_renter_density']
         places[k]['avg_renter_income'] = m[places[k]['target-zip']]['avg_renter_income']
         places[k]['renter_pop_est'] = m[places[k]['target-zip']]['renter_pop_est']
@@ -32,7 +38,8 @@ def sift_results(places, model):
         else:
             freq[places[k]['target-zip']] = 1
     pprint.pprint(freq)
-    return(places)
+    return places
+
 
 def get_model_dict(model):
     model_dict = {}
@@ -55,15 +62,15 @@ def get_model_dict(model):
 
 def write_output(d, path):
     with open(path, 'w', encoding='utf-8') as fh:
-        fieldnames = ["target-zip", "name","address","avg_renter_density","avg_renter_income","id","plid","renter_pop_est"]
+        fieldnames = ["target-zip", "name", "score", "address","avg_renter_density","avg_renter_income","id","plid","renter_pop_est"]
         writer = csv.DictWriter(fh, delimiter='\t', fieldnames=fieldnames)
         writer.writeheader()
         for r in d:
             writer.writerow(d[r])
 
 if __name__ == '__main__':
-    places = read_places("../data/output/search-20160415.csv")
+    places = read_places("../data/output/laundrysearch-2016-05-04-05-03-00.tsv")
     model = read_model("../data/output/model.csv")
     output = sift_results(places, model)
-    write_output(output, "../data/output/sorted-20160415.tsv")
+    write_output(output, "../data/output/sorted-{}.tsv".format(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')))
 
