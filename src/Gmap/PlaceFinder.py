@@ -26,7 +26,7 @@ class PlaceFinder(object):
 
         self.gfind = goog.Gmap()
         self.state_name = state_name
-        data_dir = '../../data/output'
+        data_dir = '../../data/output/'
         if os.path.exists(data_dir):
             self.outfile = '{data_dir}{state}.tsv'.format(data_dir=data_dir, state=self.state_name)
         else:
