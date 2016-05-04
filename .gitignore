@@ -109,3 +109,4 @@ data/
 # ignore site-specific configuration file
 *.yml
 *.yaml
+.Rproj.user
